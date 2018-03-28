@@ -4,12 +4,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.endava.interns</groupId>
-	<artifactId>readers-nest-backend</artifactId>
+	<artifactId>readers-nest-backend-books</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>readers-nest-backend</name>
-	<description>Backend for the reader&#39;s nest</description>
+	<name>readers-nest-backend-books</name>
+	<description>Backend for the reader&#39;s nest book service</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>

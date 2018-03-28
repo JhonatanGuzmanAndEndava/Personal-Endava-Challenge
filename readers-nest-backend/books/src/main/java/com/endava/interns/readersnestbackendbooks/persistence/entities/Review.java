@@ -1,4 +1,4 @@
-package com.endava.interns.readersnestbackend.books.persistence.entities;
+package com.endava.interns.readersnestbackendbooks.persistence.entities;
 
 import lombok.Data;
 

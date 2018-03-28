@@ -1,4 +1,4 @@
-package com.endava.interns.readersnestbackend;
+package com.endava.interns.readersnestbackendbooks;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

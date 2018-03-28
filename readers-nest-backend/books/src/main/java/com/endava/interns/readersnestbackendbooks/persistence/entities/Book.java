@@ -1,8 +1,6 @@
-package com.endava.interns.readersnestbackend.books.persistence.entities;
+package com.endava.interns.readersnestbackendbooks.persistence.entities;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
