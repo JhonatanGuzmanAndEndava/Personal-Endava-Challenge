@@ -1,12 +1,12 @@
-package com.endava.interns.readersnestbackedbookclub;
+package com.endava.interns.readersnestbackendbookclubs;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class ReadersNestBackedBookclubApplication {
+public class ReadersNestBackendBookclubsApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(ReadersNestBackedBookclubApplication.class, args);
+		SpringApplication.run(ReadersNestBackendBookclubsApplication.class, args);
 	}
 }

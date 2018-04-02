@@ -1,4 +1,4 @@
-package com.endava.interns.readersnestbackedbookclub;
+package com.endava.interns.readersnestbackendbookclubs;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -7,7 +7,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ReadersNestBackedBookclubApplicationTests {
+public class ReadersNestBackendBookclubsApplicationTests {
 
 	@Test
 	public void contextLoads() {
