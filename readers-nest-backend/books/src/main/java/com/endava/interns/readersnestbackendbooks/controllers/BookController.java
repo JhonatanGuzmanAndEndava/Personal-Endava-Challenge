@@ -1,6 +1,9 @@
 package com.endava.interns.readersnestbackendbooks.controllers;
 
+import com.endava.interns.readersnestbackendbooks.exceptions.BookNotFoundException;
+import com.endava.interns.readersnestbackendbooks.exceptions.CustomException;
 import com.endava.interns.readersnestbackendbooks.persistence.entities.Book;
+import com.endava.interns.readersnestbackendbooks.response.ResponseMessage;
 import com.endava.interns.readersnestbackendbooks.services.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,30 +25,39 @@ public class BookController {
     }
 
     @PostMapping
-    public Book addNewBook(@RequestBody Book newBook){
-        return bookService.createBook(newBook);
+    public ResponseMessage<Book> addNewBook(@RequestBody Book newBook){
+        Book book = bookService.createBook(newBook);
+        return new ResponseMessage<>(book);
     }
 
     @GetMapping(path = "/{bookId}")
-    public ResponseEntity<Book> findBookById(@PathVariable("bookId") String id){
+    public ResponseMessage<Book> findBookById(@PathVariable("bookId") String id) throws CustomException {
+
         Optional<Book> optionalBook = bookService.readBook(id);
-        return optionalBook.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        if(!optionalBook.isPresent()) throw new BookNotFoundException();
+
+        return new ResponseMessage<>(optionalBook.get());
     }
 
     @GetMapping
-    public List<Book> getAllBooks(){
-        return bookService.findAll();
+    public ResponseMessage<List<Book>> getAllBooks(){
+
+        return new ResponseMessage<>(bookService.findAll());
     }
 
     @PutMapping(path = "/{bookId}")
-    public ResponseEntity<Book> updateBook(@RequestBody Book updatedBook){
-        Optional<Book> optionalBook = bookService.updateBook(updatedBook);
-        return optionalBook.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    public ResponseMessage<Book> updateBook(@RequestBody Book updatedBook, @PathVariable("bookId") String bookId) throws BookNotFoundException{
+
+        Optional<Book> optionalBook = bookService.updateBook(bookId, updatedBook);
+        if(!optionalBook.isPresent()) throw new BookNotFoundException();
+        return new ResponseMessage<>(optionalBook.get());
     }
 
     @DeleteMapping(path = "/{bookId}")
-    public ResponseEntity<String> deleteBook(@PathVariable("bookId") String id){
+    public ResponseMessage<String> deleteBook(@PathVariable("bookId") String id) throws BookNotFoundException{
+
         Optional<String> optionalBook = bookService.deleteBook(id);
-        return optionalBook.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        if(!optionalBook.isPresent()) throw new BookNotFoundException();
+        return new ResponseMessage<>(optionalBook.get());
     }
 }
