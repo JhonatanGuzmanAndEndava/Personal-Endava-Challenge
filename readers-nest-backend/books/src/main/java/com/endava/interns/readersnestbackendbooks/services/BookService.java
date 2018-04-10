@@ -9,7 +9,7 @@ public interface BookService {
 
     Book createBook(Book newBook);
     Optional<Book> readBook(String id);
-    Optional<Book> updateBook(Book updatedBook);
+    Optional<Book> updateBook(String id, Book updatedBook);
     Optional<String> deleteBook(String id);
     List<Book> findAll();
 

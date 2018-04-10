@@ -5,6 +5,7 @@ import com.endava.interns.readersnestbackendbooks.persistence.repositories.BookR
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,8 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public Book createBook(Book newBook) {
+
+        newBook.setReviews(new ArrayList<>());
         return bookRepository.save(newBook);
     }
 
@@ -29,8 +32,10 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Optional<Book> updateBook(Book updatedBook) {
-        if(bookRepository.existsById(updatedBook.getId())){
+    public Optional<Book> updateBook(String id, Book changedBook) {
+        Optional<Book> oldBook = bookRepository.findById(id);
+        if(oldBook.isPresent()){
+            Book updatedBook = oldBook.get().updateFromNew(changedBook);
             return Optional.of(bookRepository.save(updatedBook));
         }else {
             return Optional.empty();
@@ -51,4 +56,5 @@ public class BookServiceImpl implements BookService {
     public List<Book> findAll() {
         return bookRepository.findAll();
     }
+
 }
