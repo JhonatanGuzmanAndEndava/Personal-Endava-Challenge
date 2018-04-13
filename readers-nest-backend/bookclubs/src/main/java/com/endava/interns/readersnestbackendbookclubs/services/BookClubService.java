@@ -8,7 +8,6 @@ public interface BookClubService {
     Iterable<BookClub> findPublicBookClubs();
     BookClub createBookClub(BookClub newBookClub);
     BookClub findBookClub(Long bookClubId);
-    BookClub updateBookCLub(Long bookClubId, BookClub bookClub);
-    void deleteBook(Long bookClubId);
-
+    BookClub updateBookClub(Long bookClubId, BookClub bookClub, String adminId);
+    void deleteBookClub(Long bookClubId, String adminId);
 }

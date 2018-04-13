@@ -34,6 +34,7 @@ public class BookClub {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bookClub", orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnore
     private List<Administrator> admins = new ArrayList<>();
 
 }

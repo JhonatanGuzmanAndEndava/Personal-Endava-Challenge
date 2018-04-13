@@ -6,7 +6,7 @@ import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Admin
 public interface AdministratorService {
 
     Iterable<Administrator> getAdminsFromBookClub(Long bookClubId);
-    Administrator addAdminToBookClub(Long bookClubId, Administrator admin);
-    void deleteAdminFromBookClub(Long bookClubId, String adminId);
+    Administrator addAdminToBookClub(Long bookClubId, Administrator admin, String adminId);
+    void deleteAdminFromBookClub(Long bookClubId, String adminId, String otherAdminId);
 
 }
