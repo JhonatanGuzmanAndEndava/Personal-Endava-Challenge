@@ -1,15 +1,17 @@
 package com.endava.interns.readersnestbackendusers.services;
 
-import com.endava.interns.readersnestbackendusers.exceptions.AddingUserException;
-import com.endava.interns.readersnestbackendusers.exceptions.AuthException;
-import com.endava.interns.readersnestbackendusers.exceptions.UserNotFoundException;
+import com.endava.interns.readersnestbackendusers.exceptions.*;
 import com.endava.interns.readersnestbackendusers.persistence.model.TokenHolder;
 import com.endava.interns.readersnestbackendusers.persistence.model.User;
 import com.endava.interns.readersnestbackendusers.persistence.repositories.UserRepository;
+import com.endava.interns.readersnestbackendusers.response.ResponseMessage;
+import com.endava.interns.readersnestbackendusers.response.dto.ErrorDTO;
 import com.endava.interns.readersnestbackendusers.security.JwtTokenProvider;
 import com.endava.interns.readersnestbackendusers.security.PasswordService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,12 +23,17 @@ public class UserServiceImpl implements UserService {
     private UserRepository userRepository;
     private JwtTokenProvider jwtTokenProvider;
 
+    @Value("${services.books.url}")
+    private String BOOKS_SERVICE_ROOT;
+    private RestTemplate restTemplate;
+
     @Autowired
     public UserServiceImpl(PasswordService passwordService, UserRepository userRepository,
-                           JwtTokenProvider jwtTokenProvider) {
+                           JwtTokenProvider jwtTokenProvider, RestTemplate restTemplate) {
         this.passwordService = passwordService;
         this.userRepository = userRepository;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.restTemplate = restTemplate;
     }
 
     @Override
@@ -76,26 +83,31 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User updateUser(String id, User updatedUser) throws UserNotFoundException {
+    public User updateUser(String id, User updatedUser) throws UserNotFoundException, ExternalServiceException {
         Optional<User> oldUserOptional = userRepository.findById(id);
 
         if(!oldUserOptional.isPresent()) throw new UserNotFoundException("noUser", "You can't update this user");
+        if(updatedUser.getCurrentBookId() != null) {
+           validateBook(updatedUser.getCurrentBookId());
+        }
 
         User oldUser = oldUserOptional.get();
         return userRepository.save(updateFromNew(oldUser, updatedUser));
     }
 
     @Override
-    public String addBookToHistory(String userId, String bookId) throws UserNotFoundException {
-
-        //TODO check the book exists before adding it to the user
+    public String addBookToHistory(String userId, String bookId) throws UserNotFoundException,
+            AlreadyExistsException, ExternalServiceException {
 
         Optional<User> optionalUser = userRepository.findById(userId);
 
         if(!optionalUser.isPresent()) throw new UserNotFoundException("notFound","There is no user with that ID");
 
         User user = optionalUser.get();
+        validateBook(bookId);
         //TODO Validate that the book hasn't been added yet
+        if(isBookInList(bookId, user.getBookHistory())) throw new AlreadyExistsException();
+
 
         List<String> bookHistory = user.getBookHistory();
         bookHistory.add(bookId);
@@ -131,5 +143,30 @@ public class UserServiceImpl implements UserService {
         if(changedUser.getCurrentBookId() != null) oldUser.setCurrentBookId(changedUser.getCurrentBookId());
 
         return oldUser;
+    }
+
+    private void validateBook(String bookId) throws ExternalServiceException {
+        ResponseMessage bookResponse = getBook(bookId);
+        ErrorDTO error = bookResponse.getError();
+        if(error != null){
+            throw new ExternalServiceException(error.getError(), error.getDescription());
+        }
+    }
+
+    private ResponseMessage getBook(String bookId){
+        String url = BOOKS_SERVICE_ROOT + "/" + bookId;
+        return restTemplate.getForObject(url, ResponseMessage.class);
+    }
+
+    private boolean isBookInList(String bookId, List<String> bookIds){
+        boolean isPresent = false;
+        for (String actBookId :
+                bookIds) {
+            if (actBookId.equals(bookId)){
+                isPresent = true;
+                break;
+            }
+        }
+        return isPresent;
     }
 }
