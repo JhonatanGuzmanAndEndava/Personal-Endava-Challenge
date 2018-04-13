@@ -1,17 +1,20 @@
 package com.endava.interns.readersnestbackendusers.services;
 
-import com.endava.interns.readersnestbackendusers.exceptions.AddingUserException;
-import com.endava.interns.readersnestbackendusers.exceptions.AuthException;
-import com.endava.interns.readersnestbackendusers.exceptions.UserNotFoundException;
+import com.endava.interns.readersnestbackendusers.exceptions.*;
 import com.endava.interns.readersnestbackendusers.persistence.model.TokenHolder;
 import com.endava.interns.readersnestbackendusers.persistence.model.User;
 import com.endava.interns.readersnestbackendusers.persistence.repositories.UserRepository;
+import com.endava.interns.readersnestbackendusers.response.ResponseMessage;
+import com.endava.interns.readersnestbackendusers.response.dto.ErrorDTO;
 import com.endava.interns.readersnestbackendusers.security.JwtTokenProvider;
 import com.endava.interns.readersnestbackendusers.security.PasswordService;
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +30,9 @@ public class UserServiceImplTest {
     private PasswordService passwordService;
     private UserRepository userRepository;
     private JwtTokenProvider jwtTokenProvider;
+    private RestTemplate restTemplate;
+    @Value("${services.books.url}")
+    private String BOOKS_SERVICE_ROOT;
 
     private UserService userService;
 
@@ -36,8 +42,9 @@ public class UserServiceImplTest {
         passwordService = mock(PasswordService.class);
         userRepository = mock(UserRepository.class);
         jwtTokenProvider = mock(JwtTokenProvider.class);
+        restTemplate = mock(RestTemplate.class);
 
-        userService = new UserServiceImpl(passwordService, userRepository, jwtTokenProvider);
+        userService = new UserServiceImpl(passwordService, userRepository, jwtTokenProvider, restTemplate);
     }
 
     @Test
@@ -190,6 +197,30 @@ public class UserServiceImplTest {
             fail("The user shouldn't be updated");
         } catch (UserNotFoundException e) {
             assertEquals("noUser", e.getError());
+        } catch (ExternalServiceException e) {
+            fail("This exception shouldn't have been reached");
+        }
+    }
+
+    @Test
+    public void updateExistingBookWithNonExistingCurrentBook(){
+        User oldUser = new User().setId("1")
+                .setUsername("originalUsername");
+
+        when(userRepository.findById("1")).thenReturn(Optional.of(oldUser));
+
+        ResponseMessage response = new ResponseMessage(new ErrorDTO("noBook",
+                "It doesn't exit a book with that id"));
+        when(restTemplate.getForObject(BOOKS_SERVICE_ROOT + "/1", ResponseMessage.class))
+                .thenReturn(response);
+
+        try {
+            userService.updateUser("1", new User().setCurrentBookId("1"));
+            fail("The user shouldn't be updated");
+        } catch (UserNotFoundException e) {
+            fail("This exception shouldn't have been thrown");
+        } catch (ExternalServiceException e) {
+            assertEquals("noBook", e.getError());
         }
     }
 
@@ -200,11 +231,15 @@ public class UserServiceImplTest {
 
         when(userRepository.findById("1")).thenReturn(Optional.of(oldUser));
 
+        ResponseMessage<Object> response = new ResponseMessage<>(new Object());
+        when(restTemplate.getForObject(BOOKS_SERVICE_ROOT + "/1", ResponseMessage.class))
+                .thenReturn(response);
+
         try {
-            User changedUser = new User().setUsername("newUsername");
+            User changedUser = new User().setUsername("newUsername").setCurrentBookId("1");
             userService.updateUser("1", changedUser);
-        } catch (UserNotFoundException e) {
-            assertEquals("noUser", e.getError());
+        } catch (UserNotFoundException | ExternalServiceException e) {
+            fail("No exception should have been thrown");
         }
     }
 
@@ -217,11 +252,13 @@ public class UserServiceImplTest {
             fail("The book shouldn't be added");
         } catch (UserNotFoundException e) {
             assertEquals("noUser", e.getError());
+        } catch (ExternalServiceException e){
+            fail("This exception shouldn't have been reached");
         }
     }
 
     @Test
-    public void addBookToExistingUser(){
+    public void addNonExistingBookToExistingUser(){
 
         User oldUser = new User().setId("1")
                 .setUsername("originalUsername")
@@ -229,11 +266,65 @@ public class UserServiceImplTest {
 
         when(userRepository.findById("1")).thenReturn(Optional.of(oldUser));
 
+        ResponseMessage response = new ResponseMessage(new ErrorDTO("noBook",
+                "It doesn't exit a book with that id"));
+        when(restTemplate.getForObject(BOOKS_SERVICE_ROOT + "/1", ResponseMessage.class))
+                .thenReturn(response);
+
+        try {
+            String addedBookId = userService.addBookToHistory("1", "1");
+            fail("Shouldn't have added the book to his history");
+        } catch (UserNotFoundException e) {
+            fail("The user should have been found");
+        } catch (ExternalServiceException e){
+            assertEquals("noBook", e.getError());
+        } catch (AlreadyExistsException e){
+            fail("This error shouldn't have been reached");
+        }
+    }
+
+    @Test
+    public void addExistingBookToExistingUserWithoutItInHistory(){
+
+        User oldUser = new User().setId("1")
+                .setUsername("originalUsername")
+                .setBookHistory(new ArrayList<>());
+
+        when(userRepository.findById("1")).thenReturn(Optional.of(oldUser));
+
+        ResponseMessage<Object> response = new ResponseMessage<>(new Object());
+        when(restTemplate.getForObject(BOOKS_SERVICE_ROOT + "/1", ResponseMessage.class))
+                .thenReturn(response);
+
         try {
             String addedBookId = userService.addBookToHistory("1", "1");
             assertEquals("1", addedBookId);
-        } catch (UserNotFoundException e) {
+        } catch (UserNotFoundException | ExternalServiceException | AlreadyExistsException e) {
             fail("There shouldn't been any exceptions");
+        }
+    }
+
+    @Test
+    public void addExistingBookToExistingUserWithItInHistory(){
+
+        List<String> bookHistory = Arrays.asList("2", "1");
+        User oldUser = new User().setId("1")
+                .setUsername("originalUsername")
+                .setBookHistory(bookHistory);
+
+        when(userRepository.findById("1")).thenReturn(Optional.of(oldUser));
+
+        ResponseMessage<Object> response = new ResponseMessage<>(new Object());
+        when(restTemplate.getForObject(BOOKS_SERVICE_ROOT + "/1", ResponseMessage.class))
+                .thenReturn(response);
+
+        try {
+            String addedBookId = userService.addBookToHistory("1", "1");
+            fail("Book shouldn't have been added");
+        } catch (UserNotFoundException | ExternalServiceException e) {
+            fail("This exceptions shouldn't have happened");
+        } catch (AlreadyExistsException e){
+            assertEquals("bookAlreadyExists", e.getError());
         }
     }
 
