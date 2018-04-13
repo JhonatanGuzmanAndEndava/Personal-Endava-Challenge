@@ -5,8 +5,10 @@ import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookC
 public interface BookClubService {
 
     Iterable<BookClub> findAll();
+    Iterable<BookClub> findPublicBookClubs();
     BookClub createBookClub(BookClub newBookClub);
     BookClub findBookClub(Long bookClubId);
     BookClub updateBookCLub(Long bookClubId, BookClub bookClub);
     void deleteBook(Long bookClubId);
+
 }

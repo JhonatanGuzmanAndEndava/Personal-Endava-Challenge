@@ -1,5 +1,6 @@
 package com.endava.interns.readersnestbackendbookclubs.services;
 
+import com.endava.interns.readersnestbackendbookclubs.exceptions.NotFoundException;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Administrator;
 
 public interface AdministratorService {

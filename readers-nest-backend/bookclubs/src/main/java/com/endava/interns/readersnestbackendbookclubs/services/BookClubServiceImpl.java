@@ -1,5 +1,6 @@
 package com.endava.interns.readersnestbackendbookclubs.services;
 
+import com.endava.interns.readersnestbackendbookclubs.exceptions.NotFoundException;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookClub;
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.BookClubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,11 @@ public class BookClubServiceImpl implements BookClubService {
     }
 
     @Override
+    public Iterable<BookClub> findPublicBookClubs() {
+        return bookClubRepository.findBookClubByIsPrivateFalse();
+    }
+
+    @Override
     public BookClub createBookClub(BookClub newBookClub) {
         newBookClub.setMessages(new ArrayList<>());
         newBookClub.setAdmins(new ArrayList<>());
@@ -32,12 +38,24 @@ public class BookClubServiceImpl implements BookClubService {
 
     @Override
     public BookClub findBookClub(Long bookClubId) {
-        return bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
+        try {
+            return bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @Override
     public BookClub updateBookCLub(Long bookClubId, BookClub bookClub) {
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
+        BookClub bk = null;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
 
         bk.setName(bookClub.getName());
         bk.setDescription(bookClub.getDescription());
@@ -49,7 +67,12 @@ public class BookClubServiceImpl implements BookClubService {
 
     @Override
     public void deleteBook(Long bookClubId) {
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
-        bookClubRepository.delete(bk);
+        try {
+            BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+            bookClubRepository.delete(bk);
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

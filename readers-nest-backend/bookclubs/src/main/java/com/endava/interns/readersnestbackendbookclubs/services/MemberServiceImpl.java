@@ -1,5 +1,8 @@
 package com.endava.interns.readersnestbackendbookclubs.services;
 
+import com.endava.interns.readersnestbackendbookclubs.exceptions.DuplicatedException;
+import com.endava.interns.readersnestbackendbookclubs.exceptions.NotFoundException;
+import com.endava.interns.readersnestbackendbookclubs.exceptions.NotMatchException;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Administrator;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookClub;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Member;
@@ -28,16 +31,28 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Iterable<Member> getMembersFromBookClub(Long bookClubId) {
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
+        BookClub bk = null;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
         return bk.getMembers();
     }
 
     @Override
-    public Member addMemberToBookClub(Long bookClubId, Member member) {
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
+    public Member addMemberToBookClub(Long bookClubId, Member member) throws DuplicatedException {
+        BookClub bk = null;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
 
         if(bk.getMembers().contains(member))
-            throw new NullPointerException("User already is a member");
+            throw new DuplicatedException("Duplicated user", "User already is a member");
 
         member.setBookClub(bk);
         bk.getMembers().add(member);
@@ -49,9 +64,20 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void deleteMemberFromBookClub(Long bookClubId, String memberId) {
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
-        Member member = memberRepository.findMemberByMemberIdAndBookClub_BookClubId(memberId,bookClubId)
-                .orElseThrow(() -> new NullPointerException("Member is not from this Bookclub"));
+        BookClub bk = null;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+
+        Member member = null;
+        try {
+            member = memberRepository.findMemberByMemberIdAndBookClub_BookClubId(memberId,bookClubId)
+                    .orElseThrow(() -> new NotMatchException("Not match between Member and Bookclub", "Member is not from this Bookclub"));
+        } catch (NotMatchException e) {
+            e.printStackTrace();
+        }
 
         List<Member> members = bk.getMembers();
         if(members.remove(member))

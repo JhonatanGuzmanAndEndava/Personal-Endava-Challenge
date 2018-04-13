@@ -1,5 +1,7 @@
 package com.endava.interns.readersnestbackendbookclubs.services;
 
+import com.endava.interns.readersnestbackendbookclubs.exceptions.NotFoundException;
+import com.endava.interns.readersnestbackendbookclubs.exceptions.NotMatchException;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookClub;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Message;
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.BookClubRepository;
@@ -31,17 +33,33 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Iterable<Message> findMessagesFromBookClub(Long bookClubId) {
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
+        BookClub bk = null;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
         return bk.getMessages();
     }
 
     @Override
     public Message createMessage(Long bookClubId, Message newMessage) {
 
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
+        BookClub bk = null;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
 
-        memberRepository.findMemberByMemberIdAndBookClub_BookClubId(newMessage.getUserId(),bookClubId)
-                .orElseThrow(() -> new NullPointerException("Member is not from this Bookclub"));
+        try {
+            memberRepository.findMemberByMemberIdAndBookClub_BookClubId(newMessage.getUserId(),bookClubId)
+                    .orElseThrow(() -> new NotMatchException("Not match between Member and Bookclub", "Member is not from this Bookclub"));
+        } catch (NotMatchException e) {
+            e.printStackTrace();
+        }
 
         LocalDateTime now = LocalDateTime.now();
         newMessage.setPublishedDate(now);
@@ -55,7 +73,13 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public Message findMessage(Long messageId) {
-        return messageRepository.findById(messageId).orElseThrow(() -> new NullPointerException("Message not found"));
+        try {
+            return messageRepository.findById(messageId).orElseThrow(
+                    () -> new NotFoundException("Message not found", "Message doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

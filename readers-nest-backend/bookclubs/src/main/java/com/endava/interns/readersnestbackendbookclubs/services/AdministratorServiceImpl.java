@@ -1,5 +1,6 @@
 package com.endava.interns.readersnestbackendbookclubs.services;
 
+import com.endava.interns.readersnestbackendbookclubs.exceptions.NotFoundException;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Administrator;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookClub;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Member;
@@ -28,14 +29,27 @@ public class AdministratorServiceImpl implements  AdministratorService {
 
     @Override
     public Iterable<Administrator> getAdminsFromBookClub(Long bookClubId) {
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
+        BookClub bk = null;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
         return bk.getAdmins();
     }
 
     @Override
     public Administrator addAdminToBookClub(Long bookClubId, Administrator admin) {
 
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
+        BookClub bk = null;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
+
         Optional<Member> member = memberRepository.findMemberByMemberIdAndBookClub_BookClubId(admin.getAdminId(), bookClubId);
 
         if(member.isPresent()) {
@@ -63,12 +77,21 @@ public class AdministratorServiceImpl implements  AdministratorService {
 
     @Override
     public void deleteAdminFromBookClub(Long bookClubId, String adminId) {
-        BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NullPointerException("BookClub not found"));
-        Administrator admin = administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId).orElseThrow(() -> new NullPointerException("Admin not found"));
+        BookClub bk;
+        Administrator admin;
+        try {
+            bk = bookClubRepository.findById(bookClubId).orElseThrow(
+                    () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+            admin = administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId).orElseThrow(
+                    () -> new NotFoundException("Admin not found", "Admin doesn\'t exist in database for this BookClub"));
 
-        bk.getAdmins().remove(admin);
-        bk.setAdmins(bk.getAdmins());
+            bk.getAdmins().remove(admin);
+            bk.setAdmins(bk.getAdmins());
 
-        bookClubRepository.save(bk);
+            bookClubRepository.save(bk);
+
+        } catch (NotFoundException e) {
+            e.printStackTrace();
+        }
     }
 }

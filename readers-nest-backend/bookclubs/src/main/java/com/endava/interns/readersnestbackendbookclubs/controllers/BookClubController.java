@@ -1,5 +1,6 @@
 package com.endava.interns.readersnestbackendbookclubs.controllers;
 
+import com.endava.interns.readersnestbackendbookclubs.exceptions.DuplicatedException;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Administrator;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookClub;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Member;
@@ -38,6 +39,12 @@ public class BookClubController {
     @ResponseBody
     public Iterable<BookClub> getAllBookClubs() {
         return bookClubService.findAll();
+    }
+
+    @GetMapping(path = "/public")
+    @ResponseBody
+    public Iterable<BookClub> getPublicBookClubs() {
+        return bookClubService.findPublicBookClubs();
     }
 
     @GetMapping(path = "/{bookClubId}")
@@ -95,7 +102,7 @@ public class BookClubController {
     }
 
     @PostMapping(path = "/{bookClubId}/members")
-    public Member addMember( @PathVariable(value = "bookClubId") Long bookClubId, @RequestBody Member member) {
+    public Member addMember( @PathVariable(value = "bookClubId") Long bookClubId, @RequestBody Member member) throws DuplicatedException {
         return memberService.addMemberToBookClub(bookClubId, member);
     }
 
