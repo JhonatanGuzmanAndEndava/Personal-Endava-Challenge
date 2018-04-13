@@ -1,8 +1,6 @@
 package com.endava.interns.readersnestbackendusers.services;
 
-import com.endava.interns.readersnestbackendusers.exceptions.AddingUserException;
-import com.endava.interns.readersnestbackendusers.exceptions.AuthException;
-import com.endava.interns.readersnestbackendusers.exceptions.UserNotFoundException;
+import com.endava.interns.readersnestbackendusers.exceptions.*;
 import com.endava.interns.readersnestbackendusers.persistence.model.TokenHolder;
 import com.endava.interns.readersnestbackendusers.persistence.model.User;
 
@@ -15,8 +13,8 @@ public interface UserService {
     TokenHolder signup(User newUser, long signupTime) throws AddingUserException;
     User findById(String id) throws UserNotFoundException;
     Optional<User> findByEmail(String email);
-    User updateUser(String id, User updatedUser) throws UserNotFoundException;
-    String addBookToHistory(String userId, String bookId) throws UserNotFoundException;
+    User updateUser(String id, User updatedUser) throws UserNotFoundException, ExternalServiceException;
+    String addBookToHistory(String userId, String bookId) throws UserNotFoundException, AlreadyExistsException, ExternalServiceException;
     String deleteUser(String id) throws UserNotFoundException;
     List<User> findAll();
 }
