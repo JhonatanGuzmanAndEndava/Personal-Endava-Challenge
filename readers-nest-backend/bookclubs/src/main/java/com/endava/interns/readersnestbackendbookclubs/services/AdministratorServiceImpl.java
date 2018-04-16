@@ -10,6 +10,8 @@ import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.A
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.BookClubRepository;
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,20 +32,20 @@ public class AdministratorServiceImpl implements  AdministratorService {
     }
 
     @Override
-    public Iterable<Administrator> getAdminsFromBookClub(Long bookClubId) {
+    public ResponseEntity<Iterable<Administrator>> getAdminsFromBookClub(Long bookClubId) {
         BookClub bk;
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            return bk.getAdmins();
+            return new ResponseEntity<>(bk.getAdmins(), HttpStatus.OK);
         } catch (NotFoundException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public Administrator addAdminToBookClub(Long bookClubId, Administrator admin, String adminId) {
+    public ResponseEntity<Administrator> addAdminToBookClub(Long bookClubId, Administrator admin, String adminId) {
 
         BookClub bk;
         try {
@@ -74,16 +76,16 @@ public class AdministratorServiceImpl implements  AdministratorService {
             administratorRepository.save(admin);
             bookClubRepository.save(bk);
 
-            return admin;
+            return new ResponseEntity<>(admin, HttpStatus.OK);
 
         } catch (CustomException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public void deleteAdminFromBookClub(Long bookClubId, String adminId, String otherAdminId) {
+    public ResponseEntity<Void> deleteAdminFromBookClub(Long bookClubId, String adminId, String otherAdminId) {
         BookClub bk;
         Administrator admin;
 
@@ -100,8 +102,10 @@ public class AdministratorServiceImpl implements  AdministratorService {
             bk.setAdmins(bk.getAdmins());
 
             bookClubRepository.save(bk);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (CustomException e) {
             e.printStackTrace();
         }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

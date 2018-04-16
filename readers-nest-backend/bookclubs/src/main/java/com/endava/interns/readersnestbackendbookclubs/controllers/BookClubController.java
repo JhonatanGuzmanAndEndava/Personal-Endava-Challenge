@@ -5,13 +5,13 @@ import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Admin
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookClub;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Member;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Message;
-import com.endava.interns.readersnestbackendbookclubs.security.AuthService;
 import com.endava.interns.readersnestbackendbookclubs.security.JwtTokenProvider;
 import com.endava.interns.readersnestbackendbookclubs.services.AdministratorService;
 import com.endava.interns.readersnestbackendbookclubs.services.BookClubService;
 import com.endava.interns.readersnestbackendbookclubs.services.MemberService;
 import com.endava.interns.readersnestbackendbookclubs.services.MessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.endava.interns.readersnestbackendbookclubs.security.SecurityConstants.HEADER_STRING;
@@ -30,7 +30,7 @@ public class BookClubController {
     public BookClubController(BookClubService bookClubService,
             MessageService messageService,
             AdministratorService administratorService,
-            MemberService memberService, AuthService authService,
+            MemberService memberService,
             JwtTokenProvider jwtTokenProvider)
     {
         this.bookClubService = bookClubService;
@@ -44,24 +44,24 @@ public class BookClubController {
 
     @GetMapping
     @ResponseBody
-    public Iterable<BookClub> getAllBookClubs() {
+    public ResponseEntity<Iterable<BookClub>> getAllBookClubs() {
         return bookClubService.findAll();
     }
 
     @GetMapping(path = "/public")
     @ResponseBody
-    public Iterable<BookClub> getPublicBookClubs() {
+    public ResponseEntity<Iterable<BookClub>> getPublicBookClubs() {
         return bookClubService.findPublicBookClubs();
     }
 
     @GetMapping(path = "/{bookClubId}")
     @ResponseBody
-    public BookClub getBookClubById(@PathVariable("bookClubId") Long id) {
+    public ResponseEntity<BookClub> getBookClubById(@PathVariable("bookClubId") Long id) {
         return bookClubService.findBookClub(id);
     }
 
     @PostMapping
-    public BookClub saveBookClub(@RequestHeader(value = HEADER_STRING) String authHeader, @RequestBody BookClub bookClub) {
+    public ResponseEntity<BookClub> saveBookClub(@RequestHeader(value = HEADER_STRING) String authHeader, @RequestBody BookClub bookClub) {
         String adminId = jwtTokenProvider.getUserId(jwtTokenProvider.resolveToken(authHeader));
 
         Administrator admin = new Administrator();
@@ -78,40 +78,40 @@ public class BookClubController {
     }
 
     @PutMapping(path = "/{id}")
-    public BookClub updateBookClub(@RequestHeader(value = HEADER_STRING) String authHeader, @PathVariable Long id,
+    public ResponseEntity<BookClub> updateBookClub(@RequestHeader(value = HEADER_STRING) String authHeader, @PathVariable Long id,
                                    @RequestBody BookClub bookClub) {
         String adminId = jwtTokenProvider.getUserId(jwtTokenProvider.resolveToken(authHeader));
         return bookClubService.updateBookClub(id, bookClub, adminId);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteBookClub(@RequestHeader(value = HEADER_STRING) String authHeader, @PathVariable(value = "id") Long bookClubId) {
+    public ResponseEntity<Void> deleteBookClub(@RequestHeader(value = HEADER_STRING) String authHeader, @PathVariable(value = "id") Long bookClubId) {
         String adminId = jwtTokenProvider.getUserId(jwtTokenProvider.resolveToken(authHeader));
-        bookClubService.deleteBookClub(bookClubId, adminId);
+        return bookClubService.deleteBookClub(bookClubId, adminId);
     }
 
     //CRUD Messages
 
     @GetMapping(path = "/messages")
     @ResponseBody
-    public Iterable<Message> getAllMessages() {
+    public ResponseEntity<Iterable<Message>> getAllMessages() {
         return messageService.findAllMessages();
     }
 
     @GetMapping(path = "/{bookClubId}/messages")
     @ResponseBody
-    public Iterable<Message> getMessagesFromBookClub( @PathVariable(value = "bookClubId") Long bookClubId ) {
+    public ResponseEntity<Iterable<Message>> getMessagesFromBookClub( @PathVariable(value = "bookClubId") Long bookClubId ) {
         return messageService.findMessagesFromBookClub(bookClubId);
     }
 
     @GetMapping(path = "/messages/{id}")
     @ResponseBody
-    public Message getMessageById( @PathVariable(value = "id") Long id ) {
+    public ResponseEntity<Message> getMessageById( @PathVariable(value = "id") Long id ) {
         return messageService.findMessage(id);
     }
 
     @PostMapping(path = "/{bookClubId}/messages")
-    public Message saveMessage( @RequestHeader(value = HEADER_STRING) String authHeader,
+    public ResponseEntity<Message> saveMessage( @RequestHeader(value = HEADER_STRING) String authHeader,
                                 @PathVariable(value = "bookClubId") Long bookClubId, @RequestBody Message message) {
         String userId = jwtTokenProvider.getUserId(jwtTokenProvider.resolveToken(authHeader));
         return messageService.createMessage(bookClubId, message, userId);
@@ -121,44 +121,44 @@ public class BookClubController {
 
     @GetMapping(path = "/{bookClubId}/members")
     @ResponseBody
-    public Iterable<Member> getMembersFromBookClub( @PathVariable(value = "bookClubId") Long bookClubId ) {
+    public ResponseEntity<Iterable<Member>> getMembersFromBookClub( @PathVariable(value = "bookClubId") Long bookClubId ) {
         return memberService.getMembersFromBookClub(bookClubId);
     }
 
     @PostMapping(path = "/{bookClubId}/members")
-    public Member addMember( @RequestHeader(value = HEADER_STRING) String authHeader,
-                             @PathVariable(value = "bookClubId") Long bookClubId, @RequestBody Member member) throws DuplicatedException {
+    public ResponseEntity<Member> addMember(@RequestHeader(value = HEADER_STRING) String authHeader,
+                                           @PathVariable(value = "bookClubId") Long bookClubId, @RequestBody Member member) throws DuplicatedException {
         String adminId = jwtTokenProvider.getUserId(jwtTokenProvider.resolveToken(authHeader));
         return memberService.addMemberToBookClub(bookClubId, member, adminId);
     }
 
     @DeleteMapping(path = "/{bookClubId}/members/{id}")
-    public void deleteMember( @RequestHeader(value = HEADER_STRING) String authHeader,
+    public ResponseEntity<Void> deleteMember( @RequestHeader(value = HEADER_STRING) String authHeader,
                               @PathVariable(value = "bookClubId") Long bookClubId, @PathVariable(value = "id") String id ) {
         String adminId = jwtTokenProvider.getUserId(jwtTokenProvider.resolveToken(authHeader));
-        memberService.deleteMemberFromBookClub(bookClubId, id, adminId);
+        return memberService.deleteMemberFromBookClub(bookClubId, id, adminId);
     }
 
     //CRUD ADMINS
 
     @GetMapping(path = "/{bookClubId}/admins")
     @ResponseBody
-    public Iterable<Administrator> getAdminsFromBookClub( @PathVariable(value = "bookClubId") Long bookClubId ) {
+    public ResponseEntity<Iterable<Administrator>> getAdminsFromBookClub( @PathVariable(value = "bookClubId") Long bookClubId ) {
         return administratorService.getAdminsFromBookClub(bookClubId);
     }
 
     @PostMapping(path = "/{bookClubId}/admins")
-    public Administrator addAdmin( @RequestHeader(value = HEADER_STRING) String authHeader,
+    public ResponseEntity<Administrator> addAdmin( @RequestHeader(value = HEADER_STRING) String authHeader,
                                    @PathVariable(value = "bookClubId") Long bookClubId, @RequestBody Administrator administrator) {
         String adminId = jwtTokenProvider.getUserId(jwtTokenProvider.resolveToken(authHeader));
         return administratorService.addAdminToBookClub(bookClubId, administrator, adminId);
     }
 
     @DeleteMapping(path = "/{bookClubId}/admins/{id}")
-    public void deleteAdmin( @RequestHeader(value = HEADER_STRING) String authHeader,
+    public ResponseEntity<Void> deleteAdmin( @RequestHeader(value = HEADER_STRING) String authHeader,
                              @PathVariable(value = "bookClubId") Long bookClubId, @PathVariable(value = "id") String id ) {
         String otherAdminId = jwtTokenProvider.getUserId(jwtTokenProvider.resolveToken(authHeader));
-        administratorService.deleteAdminFromBookClub(bookClubId, id, otherAdminId);
+        return administratorService.deleteAdminFromBookClub(bookClubId, id, otherAdminId);
     }
 
     //@RequestParam

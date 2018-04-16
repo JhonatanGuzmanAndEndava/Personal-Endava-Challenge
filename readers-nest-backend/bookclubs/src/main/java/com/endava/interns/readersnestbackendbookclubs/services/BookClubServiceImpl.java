@@ -8,8 +8,11 @@ import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookC
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.AdministratorRepository;
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.BookClubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Book;
 import java.util.ArrayList;
 
 @Service
@@ -25,34 +28,35 @@ public class BookClubServiceImpl implements BookClubService {
     }
 
     @Override
-    public Iterable<BookClub> findAll() {
-        return bookClubRepository.findAll();
+    public ResponseEntity<Iterable<BookClub>> findAll() {
+        return new ResponseEntity<>(bookClubRepository.findAll(), HttpStatus.OK);
     }
 
     @Override
-    public Iterable<BookClub> findPublicBookClubs() {
-        return bookClubRepository.findBookClubByIsPrivateFalse();
+    public ResponseEntity<Iterable<BookClub>> findPublicBookClubs() {
+        return new ResponseEntity<>(bookClubRepository.findBookClubByIsPrivateFalse(), HttpStatus.OK);
     }
 
     @Override
-    public BookClub createBookClub(BookClub newBookClub) {
+    public ResponseEntity<BookClub> createBookClub(BookClub newBookClub) {
         newBookClub.setMessages(new ArrayList<>());
-        return bookClubRepository.save(newBookClub);
+        return new ResponseEntity<>(bookClubRepository.save(newBookClub), HttpStatus.OK);
     }
 
     @Override
-    public BookClub findBookClub(Long bookClubId) {
+    public ResponseEntity<BookClub> findBookClub(Long bookClubId) {
         try {
-            return bookClubRepository.findById(bookClubId).orElseThrow(
+            BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+            return new ResponseEntity<>(bk, HttpStatus.OK);
         } catch (NotFoundException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public BookClub updateBookClub(Long bookClubId, BookClub bookClub, String adminId) {
+    public ResponseEntity<BookClub> updateBookClub(Long bookClubId, BookClub bookClub, String adminId) {
         BookClub bk;
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
@@ -64,26 +68,26 @@ public class BookClubServiceImpl implements BookClubService {
             bk.setDescription(bookClub.getDescription());
             bk.setActualBookId(bookClub.getActualBookId());
             bk.setIsPrivate(bookClub.getIsPrivate());
-            return bookClubRepository.save(bk);
+            return new ResponseEntity<>(bookClubRepository.save(bk), HttpStatus.OK);
 
         } catch (CustomException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public void deleteBookClub(Long bookClubId, String adminId) {
+    public ResponseEntity<Void> deleteBookClub(Long bookClubId, String adminId) {
         try {
             BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
             administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bk.getBookClubId()).orElseThrow(
                     () -> new NotMatchException("Not match between Admin and Bookclub", "This id is not admin from this Bookclub"));
             bookClubRepository.delete(bk);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (CustomException e) {
             e.printStackTrace();
         }
-
-
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

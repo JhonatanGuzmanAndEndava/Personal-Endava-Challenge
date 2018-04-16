@@ -11,6 +11,8 @@ import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.A
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.BookClubRepository;
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,20 +33,20 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Iterable<Member> getMembersFromBookClub(Long bookClubId) {
+    public ResponseEntity<Iterable<Member>> getMembersFromBookClub(Long bookClubId) {
         BookClub bk;
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            return bk.getMembers();
+            return new ResponseEntity<>(bk.getMembers(), HttpStatus.OK);
         } catch (NotFoundException e) {
             e.printStackTrace();
         }
-        return null;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public Member addMemberToBookClub(Long bookClubId, Member member, String adminId) throws DuplicatedException {
+    public ResponseEntity<Member> addMemberToBookClub(Long bookClubId, Member member, String adminId) throws DuplicatedException {
         BookClub bk;
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
@@ -52,25 +54,26 @@ public class MemberServiceImpl implements MemberService {
             administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId)
                     .orElseThrow(() -> new NotMatchException("Not match between Admin and Bookclub", "User id is not admin from this Bookclub"));
 
-            if(bk.getMembers().contains(member))
+            if(bk.getMembers().contains(member)) {
                 throw new DuplicatedException("Duplicated user", "User already is a member");
+            }
 
             member.setBookClub(bk);
             bk.getMembers().add(member);
 
             memberRepository.save(member);
             bookClubRepository.save(bk);
-            return member;
+            return new ResponseEntity<>(member, HttpStatus.OK);
 
         } catch (CustomException e) {
             e.printStackTrace();
         }
 
-        return null;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public void deleteMemberFromBookClub(Long bookClubId, String memberId, String adminId) {
+    public ResponseEntity<Void> deleteMemberFromBookClub(Long bookClubId, String memberId, String adminId) {
         BookClub bk;
         Member member;
         try {
@@ -91,9 +94,11 @@ public class MemberServiceImpl implements MemberService {
                 bk.setAdmins(admins);
             }
             bookClubRepository.save(bk);
+            return new ResponseEntity<>(HttpStatus.OK);
 
         } catch (CustomException e) {
             e.printStackTrace();
         }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }
