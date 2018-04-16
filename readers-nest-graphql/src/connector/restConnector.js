@@ -1,12 +1,12 @@
 import rp from 'request-promise';
 
 export default class RestServiceConnnector {
-  constructor({ header } = {}) {
+  constructor(header) {
     this.header = header;
     this.rp = rp;
   }
 
-  get(url) {
+  get(url, queryObj) {
     const options = {
       uri: url,
       json: true,
@@ -16,7 +16,9 @@ export default class RestServiceConnnector {
         Authorization: this.header,
       };
     }
-
+    if (queryObj) {
+      options.qs = queryObj;
+    }
     return this.rp(options);
   }
 
@@ -39,7 +41,6 @@ export default class RestServiceConnnector {
   put(url, body) {
     const options = {
       uri: url,
-      method: 'PUT',
       body,
       json: true,
     };
@@ -49,7 +50,7 @@ export default class RestServiceConnnector {
       };
     }
 
-    return this.rp(options);
+    return this.rp.put(options);
   }
 
   delete(url) {

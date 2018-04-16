@@ -21,7 +21,7 @@ const rootSchema = [`
   }
 `];
 
-const getHeader = req => ({ header: req.response.get('Authorization') });
+const getHeader = req => ({ header: req.request.header('Authorization') });
 
 
 export const typeDefs = [...rootSchema, ...booksSchema, ...usersSchema];

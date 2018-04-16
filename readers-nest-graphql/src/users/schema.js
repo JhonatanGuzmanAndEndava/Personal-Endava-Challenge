@@ -53,7 +53,7 @@ export const Schema = [`
         updateUser(id:ID!, userPayload: UserUpdateInput):User!
         deleteUser(id:ID!):String!
 
-        addBookToUserHistory(userId:ID!, bookId:ID!):Book!
+        addBookToUserHistory(userId:ID!, bookId:ID!):String!
     }
 `];
 
@@ -74,7 +74,7 @@ export const Resolvers = {
       return context.Users.signup(newUser);
     },
     refreshToken(root, { refreshToken }, context) {
-      return context.Users.signup(refreshToken);
+      return context.Users.refreshToken(refreshToken);
     },
     updateUser(root, { id, userPayload }, context) {
       return context.Users.updateUser(id, userPayload);

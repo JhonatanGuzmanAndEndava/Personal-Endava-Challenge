@@ -4,8 +4,8 @@ import parseResponseFromPromise from '../connector/responseParser';
 const BOOK_SERVICE_ROOT = 'http://localhost:9001/books/';
 
 export default class Books {
-  constructor({ token }) {
-    this.restConnector = new RestConnector({ token });
+  constructor({ header }) {
+    this.restConnector = new RestConnector(header);
   }
 
   findAll() {

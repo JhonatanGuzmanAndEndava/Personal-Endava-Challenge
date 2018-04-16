@@ -4,8 +4,8 @@ import parseResponseFromPromise from '../connector/responseParser';
 const USER_SERVICE_ROOT = 'http://localhost:9000/users/';
 
 export default class Users {
-  constructor({ token }) {
-    this.restConnector = new RestConnector({ token });
+  constructor({ header }) {
+    this.restConnector = new RestConnector(header);
   }
 
   findAll() {
@@ -26,7 +26,7 @@ export default class Users {
     const credentials = {
       password: userWithPassword.password,
     };
-    return this.restConnector.post(`${USER_SERVICE_ROOT}singup`, { user, credentials }).then(parseResponseFromPromise);
+    return this.restConnector.post(`${USER_SERVICE_ROOT}signup`, { user, credentials }).then(parseResponseFromPromise);
   }
 
   login(credentials) {
@@ -34,7 +34,9 @@ export default class Users {
   }
 
   refreshToken(refreshToken) {
-    return this.restConnector.get(`${USER_SERVICE_ROOT}token/refresh?token=${refreshToken}`).then(parseResponseFromPromise);
+    return this.restConnector.get(`${USER_SERVICE_ROOT}token/refresh`, {
+      token: refreshToken,
+    }).then(parseResponseFromPromise);
   }
 
   updateUser(id, user) {
