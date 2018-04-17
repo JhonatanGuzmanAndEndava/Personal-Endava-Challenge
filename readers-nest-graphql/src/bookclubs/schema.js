@@ -15,7 +15,7 @@ export const Schema = [`
     actualBook:Book
     messages:[Message!]!
     admins:[User!]!
-    members:[User!!
+    members:[User!]!
   }
 
   type Message {
@@ -41,11 +41,11 @@ export const Schema = [`
 
     postMessageToBookclub(bookclubId:ID!, messageContent:String!):Message!
 
-    addBookclubMember(bookclubId:ID!, memberId!:ID!):ID
-    deleteBookclubMember(bookclubId:ID!, memberId!:ID!):ID
+    addBookclubMember(bookclubId:ID!, memberId:ID!):ID
+    deleteBookclubMember(bookclubId:ID!, memberId:ID!):ID
 
-    addBookclubAdmin(bookclubId:ID!, memberId!:ID!):ID
-    deleteBookclubAdmin(bookclubId:ID!, memberId!:ID!):ID
+    addBookclubAdmin(bookclubId:ID!, memberId:ID!):ID
+    deleteBookclubAdmin(bookclubId:ID!, memberId:ID!):ID
   }
 `];
 
@@ -80,13 +80,13 @@ export const Resolvers = {
       return context.Bookclubs.postMessage(bookclubId, messageContent);
     },
     addBookclubMember(root, { bookclubId, memberId }, context) {
-      return context.Bookclubs.addMember(bookclubId, memberId);
+      return context.Bookclubs.addMember(bookclubId, memberId).then(member => member.memberId);
     },
     deleteBookclubMember(root, { bookclubId, memberId }, context) {
       return context.Bookclubs.removeMember(bookclubId, memberId);
     },
     addBookclubAdmin(root, { bookclubId, memberId }, context) {
-      return context.Bookclubs.addAdmin(bookclubId, memberId);
+      return context.Bookclubs.addAdmin(bookclubId, memberId).then(admin => admin.adminId);
     },
     deleteBookclubAdmin(root, { bookclubId, memberId }, context) {
       return context.Bookclubs.removeAdmin(bookclubId, memberId);
@@ -105,13 +105,15 @@ export const Resolvers = {
       return null;
     },
     messages(bookclub, args, context) {
-      return context.Bookclub.getMessages(bookclub.id);
+      return context.Bookclubs.getMessages(bookclub.id);
     },
     admins(bookclub, args, context) {
-      return bookclub.admins.map(adminId => context.User.findById(adminId));
+      return context.Bookclubs.getAdmins(bookclub.id)
+        .then(adminList => adminList.map(id => context.Users.findById(id.adminId)));
     },
     members(bookclub, args, context) {
-      return bookclub.members.map(memberId => context.User.findById(memberId));
+      return context.Bookclubs.getMembers(bookclub.id)
+        .then(memberList => memberList.map(id => context.Users.findById(id.memberId)));
     },
   },
 };
