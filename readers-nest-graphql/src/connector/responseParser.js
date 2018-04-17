@@ -8,10 +8,5 @@ export function parseResponseFromPromise(promiseResult) {
 }
 
 export function parseHttpResponseFromPromise(promiseResult) {
-  if (promiseResult.error) {
-    const { error } = promiseResult;
-    throw new Error(error.description);
-  } else {
-    return promiseResult.data;
-  }
+  return promiseResult;
 }
