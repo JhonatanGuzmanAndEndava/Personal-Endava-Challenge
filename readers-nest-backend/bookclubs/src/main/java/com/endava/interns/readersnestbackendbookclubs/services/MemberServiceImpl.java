@@ -1,5 +1,6 @@
 package com.endava.interns.readersnestbackendbookclubs.services;
 
+import com.endava.interns.readersnestbackendbookclubs.exceptions.CustomException;
 import com.endava.interns.readersnestbackendbookclubs.exceptions.DuplicatedException;
 import com.endava.interns.readersnestbackendbookclubs.exceptions.NotFoundException;
 import com.endava.interns.readersnestbackendbookclubs.exceptions.NotMatchException;
@@ -10,6 +11,8 @@ import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.A
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.BookClubRepository;
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,65 +33,72 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public Iterable<Member> getMembersFromBookClub(Long bookClubId) {
-        BookClub bk = null;
+    public ResponseEntity<Iterable<Member>> getMembersFromBookClub(Long bookClubId) {
+        BookClub bk;
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
+            return new ResponseEntity<>(bk.getMembers(), HttpStatus.OK);
         } catch (NotFoundException e) {
             e.printStackTrace();
         }
-        return bk.getMembers();
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public Member addMemberToBookClub(Long bookClubId, Member member) throws DuplicatedException {
-        BookClub bk = null;
+    public ResponseEntity<Member> addMemberToBookClub(Long bookClubId, Member member, String adminId) throws DuplicatedException {
+        BookClub bk;
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-        } catch (NotFoundException e) {
+            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId)
+                    .orElseThrow(() -> new NotMatchException("Not match between Admin and Bookclub", "User id is not admin from this Bookclub"));
+
+            if(bk.getMembers().contains(member)) {
+                throw new DuplicatedException("Duplicated user", "User already is a member");
+            }
+
+            member.setBookClub(bk);
+            bk.getMembers().add(member);
+
+            memberRepository.save(member);
+            bookClubRepository.save(bk);
+            return new ResponseEntity<>(member, HttpStatus.OK);
+
+        } catch (CustomException e) {
             e.printStackTrace();
         }
 
-        if(bk.getMembers().contains(member))
-            throw new DuplicatedException("Duplicated user", "User already is a member");
-
-        member.setBookClub(bk);
-        bk.getMembers().add(member);
-
-        memberRepository.save(member);
-        bookClubRepository.save(bk);
-        return member;
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public void deleteMemberFromBookClub(Long bookClubId, String memberId) {
-        BookClub bk = null;
+    public ResponseEntity<Void> deleteMemberFromBookClub(Long bookClubId, String memberId, String adminId) {
+        BookClub bk;
+        Member member;
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-        } catch (NotFoundException e) {
-            e.printStackTrace();
-        }
-
-        Member member = null;
-        try {
             member = memberRepository.findMemberByMemberIdAndBookClub_BookClubId(memberId,bookClubId)
                     .orElseThrow(() -> new NotMatchException("Not match between Member and Bookclub", "Member is not from this Bookclub"));
-        } catch (NotMatchException e) {
+            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId)
+                    .orElseThrow(() -> new NotMatchException("Not match between Admin and Bookclub", "User id is not admin from this Bookclub"));
+
+            List<Member> members = bk.getMembers();
+            if(members.remove(member))
+                bk.setMembers(members);
+
+            Optional<Administrator> admin = administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(memberId, bookClubId);
+            if(admin.isPresent()) {
+                List<Administrator> admins = bk.getAdmins();
+                admins.remove(admin.get());
+                bk.setAdmins(admins);
+            }
+            bookClubRepository.save(bk);
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        } catch (CustomException e) {
             e.printStackTrace();
         }
-
-        List<Member> members = bk.getMembers();
-        if(members.remove(member))
-            bk.setMembers(members);
-
-        Optional<Administrator> admin = administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(memberId, bookClubId);
-        if(admin.isPresent()) {
-            List<Administrator> admins = bk.getAdmins();
-            admins.remove(admin.get());
-            bk.setAdmins(admins);
-        }
-        bookClubRepository.save(bk);
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

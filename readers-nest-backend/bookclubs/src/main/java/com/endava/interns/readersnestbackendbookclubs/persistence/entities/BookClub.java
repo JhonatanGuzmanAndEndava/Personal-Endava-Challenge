@@ -8,6 +8,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Data
 @Entity
@@ -34,6 +35,20 @@ public class BookClub {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bookClub", orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.FALSE)
+    @JsonIgnore
     private List<Administrator> admins = new ArrayList<>();
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        BookClub bookClub = (BookClub) o;
+        return Objects.equals(bookClubId, bookClub.bookClubId);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(bookClubId);
+    }
 }

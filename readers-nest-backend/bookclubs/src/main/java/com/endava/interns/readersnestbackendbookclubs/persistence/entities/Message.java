@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.Objects;
 
 @Data
 @Entity
@@ -28,4 +29,17 @@ public class Message {
 
     private String contentMessage;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Message message = (Message) o;
+        return Objects.equals(messageId, message.messageId);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(messageId);
+    }
 }
