@@ -1,5 +1,5 @@
 import RestConnector from '../connector/restConnector';
-import parseResponseFromPromise from '../connector/responseParser';
+import { parseResponseFromPromise } from '../connector/responseParser';
 
 const BOOK_SERVICE_ROOT = 'http://localhost:9001/books/';
 
