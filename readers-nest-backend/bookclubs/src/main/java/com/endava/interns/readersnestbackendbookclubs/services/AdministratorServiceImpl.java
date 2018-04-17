@@ -51,10 +51,10 @@ public class AdministratorServiceImpl implements  AdministratorService {
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId)
+            administratorRepository.findAdministratorByAdminIdAndBookClub_Id(adminId, bookClubId)
                     .orElseThrow(() -> new NotMatchException("Not match between Admin and Bookclub", "User id is not admin from this Bookclub"));
 
-            Optional<Member> member = memberRepository.findMemberByMemberIdAndBookClub_BookClubId(admin.getAdminId(), bookClubId);
+            Optional<Member> member = memberRepository.findMemberByMemberIdAndBookClub_Id(admin.getAdminId(), bookClubId);
 
             if(member.isPresent()) {
                 List<Administrator> admins = bk.getAdmins();
@@ -90,12 +90,12 @@ public class AdministratorServiceImpl implements  AdministratorService {
         Administrator admin;
 
         try {
-            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(otherAdminId, bookClubId)
+            administratorRepository.findAdministratorByAdminIdAndBookClub_Id(otherAdminId, bookClubId)
                     .orElseThrow(() -> new NotMatchException("Not match between Admin and Bookclub", "User id is not admin from this Bookclub"));
 
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            admin = administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId).orElseThrow(
+            admin = administratorRepository.findAdministratorByAdminIdAndBookClub_Id(adminId, bookClubId).orElseThrow(
                     () -> new NotFoundException("Admin not found", "Admin doesn\'t exist in database for this BookClub"));
 
             bk.getAdmins().remove(admin);

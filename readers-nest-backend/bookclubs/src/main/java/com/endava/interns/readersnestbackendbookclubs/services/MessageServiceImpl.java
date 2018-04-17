@@ -54,7 +54,7 @@ public class MessageServiceImpl implements MessageService {
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            memberRepository.findMemberByMemberIdAndBookClub_BookClubId(userId, bookClubId)
+            memberRepository.findMemberByMemberIdAndBookClub_Id(userId, bookClubId)
                     .orElseThrow(() -> new NotMatchException("Not match between Member and Bookclub", "Member is not from this Bookclub"));
 
             LocalDateTime now = LocalDateTime.now();
