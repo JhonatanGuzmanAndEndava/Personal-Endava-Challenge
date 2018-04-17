@@ -1,9 +1,9 @@
 # First run this inside the project
-# mvnw package && java -jar target/readers-nest-backend-bookclubs-0.0.1-SNAPSHOT.jar
+# mvnw package && java -jar target/readers-nest-backend-books-0.0.1-SNAPSHOT.jar
 
 FROM openjdk:8-jdk-alpine
 VOLUME /tmp
 ARG JAR_FILE
-ADD target/readers-nest-backend-bookclubs-0.0.1-SNAPSHOT.jar app.jar
+ADD target/readers-nest-backend-books-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
-EXPOSE 9002
+EXPOSE 9001
