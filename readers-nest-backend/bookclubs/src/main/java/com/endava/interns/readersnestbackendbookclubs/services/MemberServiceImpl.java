@@ -51,7 +51,7 @@ public class MemberServiceImpl implements MemberService {
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId)
+            administratorRepository.findAdministratorByAdminIdAndBookClub_Id(adminId, bookClubId)
                     .orElseThrow(() -> new NotMatchException("Not match between Admin and Bookclub", "User id is not admin from this Bookclub"));
 
             if(bk.getMembers().contains(member)) {
@@ -78,16 +78,16 @@ public class MemberServiceImpl implements MemberService {
         Member member;
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(() -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            member = memberRepository.findMemberByMemberIdAndBookClub_BookClubId(memberId,bookClubId)
+            member = memberRepository.findMemberByMemberIdAndBookClub_Id(memberId,bookClubId)
                     .orElseThrow(() -> new NotMatchException("Not match between Member and Bookclub", "Member is not from this Bookclub"));
-            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bookClubId)
+            administratorRepository.findAdministratorByAdminIdAndBookClub_Id(adminId, bookClubId)
                     .orElseThrow(() -> new NotMatchException("Not match between Admin and Bookclub", "User id is not admin from this Bookclub"));
 
             List<Member> members = bk.getMembers();
             if(members.remove(member))
                 bk.setMembers(members);
 
-            Optional<Administrator> admin = administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(memberId, bookClubId);
+            Optional<Administrator> admin = administratorRepository.findAdministratorByAdminIdAndBookClub_Id(memberId, bookClubId);
             if(admin.isPresent()) {
                 List<Administrator> admins = bk.getAdmins();
                 admins.remove(admin.get());

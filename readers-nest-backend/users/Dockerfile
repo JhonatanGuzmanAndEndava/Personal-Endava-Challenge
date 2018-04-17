@@ -6,4 +6,4 @@ VOLUME /tmp
 ARG JAR_FILE
 ADD target/readers-nest-backend-users-0.0.1-SNAPSHOT.jar app.jar
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
-EXPOSE 9001
+EXPOSE 9000

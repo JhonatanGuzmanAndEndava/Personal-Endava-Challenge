@@ -59,7 +59,7 @@ public class BookClubServiceImpl implements BookClubService {
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bk.getId()).orElseThrow(
+            administratorRepository.findAdministratorByAdminIdAndBookClub_Id(adminId, bk.getId()).orElseThrow(
                     () -> new NotMatchException("Not match between Admin and Bookclub", "This id is not admin from this Bookclub"));
 
             bk.setName(bookClub.getName());
@@ -79,7 +79,7 @@ public class BookClubServiceImpl implements BookClubService {
         try {
             BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bk.getId()).orElseThrow(
+            administratorRepository.findAdministratorByAdminIdAndBookClub_Id(adminId, bk.getId()).orElseThrow(
                     () -> new NotMatchException("Not match between Admin and Bookclub", "This id is not admin from this Bookclub"));
             bookClubRepository.delete(bk);
             return new ResponseEntity<>(HttpStatus.OK);
