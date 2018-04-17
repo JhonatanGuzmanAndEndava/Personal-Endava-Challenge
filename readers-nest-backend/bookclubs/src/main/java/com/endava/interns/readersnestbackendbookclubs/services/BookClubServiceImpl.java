@@ -3,7 +3,6 @@ package com.endava.interns.readersnestbackendbookclubs.services;
 import com.endava.interns.readersnestbackendbookclubs.exceptions.CustomException;
 import com.endava.interns.readersnestbackendbookclubs.exceptions.NotFoundException;
 import com.endava.interns.readersnestbackendbookclubs.exceptions.NotMatchException;
-import com.endava.interns.readersnestbackendbookclubs.persistence.entities.Administrator;
 import com.endava.interns.readersnestbackendbookclubs.persistence.entities.BookClub;
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.AdministratorRepository;
 import com.endava.interns.readersnestbackendbookclubs.persistence.repositories.BookClubRepository;
@@ -12,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Book;
 import java.util.ArrayList;
 
 @Service
@@ -61,7 +59,7 @@ public class BookClubServiceImpl implements BookClubService {
         try {
             bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bk.getBookClubId()).orElseThrow(
+            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bk.getId()).orElseThrow(
                     () -> new NotMatchException("Not match between Admin and Bookclub", "This id is not admin from this Bookclub"));
 
             bk.setName(bookClub.getName());
@@ -81,7 +79,7 @@ public class BookClubServiceImpl implements BookClubService {
         try {
             BookClub bk = bookClubRepository.findById(bookClubId).orElseThrow(
                     () -> new NotFoundException("BookClub not found", "BookClub doesn\'t exist in database"));
-            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bk.getBookClubId()).orElseThrow(
+            administratorRepository.findAdministratorByAdminIdAndBookClub_BookClubId(adminId, bk.getId()).orElseThrow(
                     () -> new NotMatchException("Not match between Admin and Bookclub", "This id is not admin from this Bookclub"));
             bookClubRepository.delete(bk);
             return new ResponseEntity<>(HttpStatus.OK);
