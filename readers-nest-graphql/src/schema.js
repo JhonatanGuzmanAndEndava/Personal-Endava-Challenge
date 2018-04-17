@@ -31,5 +31,5 @@ export const resolvers = merge(booksResolvers, usersResolvers, bookclubsResolver
 export const context = req => ({
   Users: new Users(getHeader(req)),
   Books: new Books(getHeader(req)),
-  bookclubs: new Bookclubs(getHeader(req)),
+  Bookclubs: new Bookclubs(getHeader(req)),
 });
