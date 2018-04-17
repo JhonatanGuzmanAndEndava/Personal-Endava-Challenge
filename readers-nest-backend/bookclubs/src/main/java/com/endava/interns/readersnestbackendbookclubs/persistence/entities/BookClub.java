@@ -17,7 +17,7 @@ public class BookClub {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private Long bookClubId;
+    private Long id;
     private String name;
     private String description;
     private String actualBookId;
@@ -43,12 +43,12 @@ public class BookClub {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         BookClub bookClub = (BookClub) o;
-        return Objects.equals(bookClubId, bookClub.bookClubId);
+        return Objects.equals(id, bookClub.id);
     }
 
     @Override
     public int hashCode() {
 
-        return Objects.hash(bookClubId);
+        return Objects.hash(id);
     }
 }
