@@ -1,5 +1,5 @@
 import RestConnector from '../connector/restConnector';
-import parseResponseFromPromise from '../connector/responseParser';
+import { parseResponseFromPromise } from '../connector/responseParser';
 
 const USER_SERVICE_ROOT = 'http://localhost:9000/users/';
 

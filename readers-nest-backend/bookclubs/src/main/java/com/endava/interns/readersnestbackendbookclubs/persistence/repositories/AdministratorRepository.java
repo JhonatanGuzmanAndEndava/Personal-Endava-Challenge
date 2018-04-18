@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface AdministratorRepository extends CrudRepository<Administrator, Long> {
 
-    Optional<Administrator> findAdministratorByAdminIdAndBookClub_BookClubId(String adminId, Long bookClubId);
+    Optional<Administrator> findAdministratorByAdminIdAndBookClub_Id(String adminId, Long bookClubId);
 
 }

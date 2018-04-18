@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface MemberRepository extends CrudRepository<Member, Long> {
 
-    Optional<Member> findMemberByMemberIdAndBookClub_BookClubId(String memberId, Long bookClubId);
+    Optional<Member> findMemberByMemberIdAndBookClub_Id(String memberId, Long bookClubId);
 
 }
