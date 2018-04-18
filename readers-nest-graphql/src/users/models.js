@@ -1,7 +1,7 @@
 import RestConnector from '../connector/restConnector';
 import { parseResponseFromPromise } from '../connector/responseParser';
 
-const USER_SERVICE_ROOT = 'http://10.0.2.15:9000/users/';
+const USER_SERVICE_ROOT = 'http://localhost:9000/users/';
 
 export default class Users {
   constructor({ header }) {
