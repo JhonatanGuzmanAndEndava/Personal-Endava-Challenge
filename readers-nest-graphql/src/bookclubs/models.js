@@ -1,7 +1,7 @@
 import RestConnector from '../connector/restConnector';
 import { parseHttpResponseFromPromise } from '../connector/responseParser';
 
-const BOOKCLUB_SERVICE_ROOT = 'http://localhost:9002/bookclub';
+const BOOKCLUB_SERVICE_ROOT = 'http://172.17.0.1:9002/bookclub';
 
 export default class Bookclubs {
   constructor({ header }) {
