@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
+import gql from 'graphql-tag';
+import { graphql } from 'react-apollo';
+
+
 const Message = ({ message }) => (
   <div className="comment">
     <div className="avatar">
@@ -35,11 +39,29 @@ class MessageList extends Component {
   constructor(props) {
     super(props);
 
+    this.state = {
+      newMessage: '',
+    };
+
     this.createMessage = this.createMessage.bind(this);
+    this.onChangeNewMessage = this.onChangeNewMessage.bind(this);
+  }
+
+  onChangeNewMessage(event) {
+    this.setState({
+      newMessage: event.target.value,
+    });
   }
 
   createMessage() {
-    console.log(this.props.messages);
+    this.props.postMessage({
+      variables: {
+        id: this.props.bookclubId,
+        messageContent: this.state.newMessage,
+      },
+    }).catch(error => (
+      console.log(error)
+    ));
   }
 
   messagesToElems() {
@@ -55,10 +77,10 @@ class MessageList extends Component {
         {this.messagesToElems()}
         <form className="ui form">
           <div className="field">
-            <textarea rows="2" placeholder="Type a message" />
+            <textarea rows="2" placeholder="Type a message" value={this.state.newMessage} onChange={this.onChangeNewMessage}/>
           </div>
-          <button className="ui blue labeled submit icon button">
-            <i className="icon edit" /> Add Reply
+          <button className="ui blue labeled submit icon button" onClick={this.createMessage}>
+            <i className="icon edit" /> Send Message
           </button>
         </form>
       </div>
@@ -67,6 +89,7 @@ class MessageList extends Component {
 }
 
 MessageList.propTypes = {
+  bookclubId: PropTypes.string.isRequired,
   messages: PropTypes.arrayOf(PropTypes.shape({
     author: PropTypes.shape({
       id: PropTypes.string,
@@ -75,6 +98,22 @@ MessageList.propTypes = {
     contentMessage: PropTypes.string.isRequired,
     publishedDate: PropTypes.string.isRequired,
   })).isRequired,
+  postMessage: PropTypes.func.isRequired,
 };
 
-export default MessageList;
+const POST_MESSAGE = gql`
+  mutation postMessage($id:ID!, $messageContent:String!){
+    postMessageToBookclub(bookclubId:$id, messageContent:$messageContent) {
+      contentMessage
+      author {
+        username
+      }
+      publishedDate
+    }
+  }
+`;
+
+export default graphql(POST_MESSAGE, {
+  name: 'postMessage',
+})(MessageList);
+

@@ -24,7 +24,7 @@ class BookclubsPageContainer extends Component {
 
 BookclubsPageContainer.propTypes = {
   bookclubs: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.string,
     name: PropTypes.description,
     description: PropTypes.string,
   })).isRequired,

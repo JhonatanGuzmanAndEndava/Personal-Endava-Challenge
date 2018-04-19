@@ -20,7 +20,7 @@ class BookclubList extends Component {
 
 BookclubList.propTypes = {
   bookclubs: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.string,
     name: PropTypes.string,
     author: PropTypes.string,
   })).isRequired,

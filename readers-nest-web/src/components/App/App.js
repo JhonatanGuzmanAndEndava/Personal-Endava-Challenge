@@ -10,6 +10,7 @@ import BookInfoPage from '../../pages/BookInfoPage';
 import BookclubInfoPage from '../../pages/BookclubInfoPage';
 import Login from '../Login/Login';
 import Signup from '../Signup/Signup';
+import CreateBookclub from '../CreateBookclub/CreateBookclub';
 
 const App = () => (
   <div className="ui vertical masthead segment">
@@ -22,6 +23,7 @@ const App = () => (
       <Route exact path="/bookclubs/:id" component={BookclubInfoPage} />
       <Route exact path="/login" component={Login} />
       <Route exact path="/signup" component={Signup} />
+      <Route exact path="/new/bookclub" component={CreateBookclub} />
     </Switch>
   </div>
 );

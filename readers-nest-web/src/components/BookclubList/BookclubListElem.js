@@ -14,7 +14,7 @@ const BookclubListElem = ({ bookclub }) => (
 
 BookclubListElem.propTypes = {
   bookclub: PropTypes.shape({
-    id: PropTypes.number,
+    id: PropTypes.string,
     name: PropTypes.string,
     description: PropTypes.string,
   }).isRequired,

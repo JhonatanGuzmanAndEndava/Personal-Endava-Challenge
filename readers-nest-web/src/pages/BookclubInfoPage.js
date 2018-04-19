@@ -10,27 +10,6 @@ import MessageList from '../components/MessageList/MessageList';
 class BookclubInfoPageContainer extends Component {
   constructor(props) {
     super(props);
-    this.bookclub = {
-      id: 1,
-      name: 'The Terrors',
-      description: 'For the fans of the horror genre, you can always find something even more terrifying...',
-      actualBook: {
-        id: '1',
-        name: 'The Stand',
-      },
-      messages: [
-        {
-          author: { id: '1', username: 'JavierTrc' },
-          contentMessage: 'This a test message fellas',
-          publishedDate: '2018-04-19',
-        },
-        {
-          author: { id: '2', username: 'JavierTrc2' },
-          contentMessage: 'This the final test message fellas',
-          publishedDate: '2018-04-20',
-        },
-      ],
-    };
 
     this.bookclub = props.bookclub;
   }
@@ -41,7 +20,7 @@ class BookclubInfoPageContainer extends Component {
           <BookclubInfo bookclub={this.bookclub} />
         </div>
         <div className="twelve wide column">
-          <MessageList messages={this.bookclub.messages} />
+          <MessageList bookclubId={this.bookclub.id} messages={this.bookclub.messages} />
         </div>
       </div>
     );
@@ -69,7 +48,7 @@ BookclubInfoPageContainer.propTypes = {
 };
 
 const GET_BOOKCLUB = gql`
-  query bookclub($id: String!) {
+  query bookclub($id: ID!) {
     bookclub(id: $id) {
       id
       name

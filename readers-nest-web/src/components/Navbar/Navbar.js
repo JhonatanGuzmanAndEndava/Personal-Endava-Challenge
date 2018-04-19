@@ -12,6 +12,8 @@ class Navbar extends Component {
     };
     this.goToLogin = this.goToLogin.bind(this);
     this.goToSignup = this.goToSignup.bind(this);
+    this.goToNewBookclub = this.goToNewBookclub.bind(this);
+    this.logout = this.logout.bind(this);
   }
 
   goToLogin() {
@@ -22,6 +24,20 @@ class Navbar extends Component {
     this.props.history.push('/signup');
   }
 
+  goToNewBookclub() {
+    this.props.history.push('/new/bookclub');
+  }
+
+  logout() {
+    localStorage.removeItem('user-id');
+    localStorage.removeItem('token');
+    localStorage.removeItem('refresh-token');
+
+    this.setState({
+      loggedIn: '',
+    });
+  }
+
   render() {
     const buttons = !this.state.loggedIn ? (
       [
@@ -29,7 +45,13 @@ class Navbar extends Component {
         <button className="ui primary button" key="2" onClick={this.goToSignup}>Sign In</button>,
       ]
     ) : (
-      <button className="ui primary button">Log Out</button>
+      [
+        <button className="positive ui labeled icon button" onClick={this.goToNewBookclub} key="1">
+          <i className="plus icon" />
+          Bookclub
+        </button>,
+        <button className="ui primary button" onClick={this.logout} key="2">Log Out</button>,
+      ]
     );
 
     return (

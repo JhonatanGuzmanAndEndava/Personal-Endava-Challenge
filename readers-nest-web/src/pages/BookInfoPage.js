@@ -10,24 +10,6 @@ import BookReviews from '../components/BookReviews/BookReviews';
 class BookInfoPageContainer extends Component {
   constructor(props) {
     super(props);
-    this.book = {
-      id: '1',
-      name: 'Booky',
-      author: 'Booky Author',
-      editorial: 'Editorial of booky',
-      publishedAt: '2017-10-02',
-      reviews: [
-        {
-          authorId: '1', author: 'JavierTrc', content: 'This is a review', postedDate: '2018-04-18',
-        },
-        {
-          authorId: '2', author: 'JavierTrc2', content: 'This is another review', postedDate: '2018-04-18',
-        },
-        {
-          authorId: '3', author: 'JavierTrc3', content: 'This is yet another review', postedDate: '2018-04-18',
-        },
-      ],
-    };
 
     this.book = props.book;
   }
@@ -35,7 +17,7 @@ class BookInfoPageContainer extends Component {
     return (
       <div className="ui container">
         <BookInfo book={this.book} />
-        <BookReviews reviews={this.book.reviews} />
+        <BookReviews bookId={this.book.id} reviews={this.book.reviews} />
       </div>
     );
   }
