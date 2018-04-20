@@ -16,6 +16,21 @@ class Navbar extends Component {
     this.logout = this.logout.bind(this);
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.location.pathname !== prevProps.location.pathname) {
+      this.onRouteChanged();
+    }
+  }
+
+  onRouteChanged() {
+    const actToken = localStorage.getItem('token');
+    if (this.state.loggedIn !== actToken) {
+      this.setState({
+        loggedIn: actToken,
+      });
+    }
+  }
+
   goToLogin() {
     this.props.history.push('/login');
   }
@@ -75,6 +90,9 @@ class Navbar extends Component {
 Navbar.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func,
+  }).isRequired,
+  location: PropTypes.shape({
+    pathname: PropTypes.string,
   }).isRequired,
 };
 
