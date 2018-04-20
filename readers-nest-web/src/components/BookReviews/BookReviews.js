@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import gql from 'graphql-tag';
-import { graphql } from 'react-apollo';
+import { graphql, compose } from 'react-apollo';
 
 
 import './BookReviews.css';
@@ -19,6 +19,7 @@ class BookReviews extends Component {
 
     this.onChangeNewReview = this.onChangeNewReview.bind(this);
     this.onSubmitReview = this.onSubmitReview.bind(this);
+    this.createDeleteFunction = this.createDeleteFunction.bind(this);
   }
 
   onChangeNewReview(event) {
@@ -53,8 +54,25 @@ class BookReviews extends Component {
             {review.reviewContent}
           </div>
         </div>
+        <div className="actions">
+          <button className="ui basic labeled icon delete button" onClick={this.createDeleteFunction(this.props.bookId, review.author.id)}>
+            <i className="delete icon" />
+            Delete
+          </button>
+        </div>
       </div>
     ));
+  }
+
+  createDeleteFunction(bookId, authorId) {
+    return () => (
+      this.props.deleteReview({
+        variables: {
+          bookId,
+          authorId,
+        },
+      })
+    );
   }
 
   render() {
@@ -86,6 +104,7 @@ BookReviews.propTypes = {
     postedDate: PropTypes.string,
   })).isRequired,
   submitReview: PropTypes.func.isRequired,
+  deleteReview: PropTypes.func.isRequired,
 };
 
 const CREATE_REVIEW = gql`
@@ -101,6 +120,24 @@ const CREATE_REVIEW = gql`
   }
 `;
 
-export default graphql(CREATE_REVIEW, {
-  name: 'submitReview',
-})(BookReviews);
+const DELETE_REVIEW = gql`
+  mutation deleteReview($bookId:ID!, $authorId:ID!){
+    deleteReview(bookId:$bookId, authorId:$authorId){
+      reviewContent
+      author {
+        id
+        username
+      }
+      postedDate
+    }
+  }
+`;
+
+export default compose(
+  graphql(CREATE_REVIEW, {
+    name: 'submitReview',
+  }),
+  graphql(DELETE_REVIEW, {
+    name: 'deleteReview',
+  }),
+)(BookReviews);

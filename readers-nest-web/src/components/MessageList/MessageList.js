@@ -77,7 +77,7 @@ class MessageList extends Component {
         {this.messagesToElems()}
         <form className="ui form">
           <div className="field">
-            <textarea rows="2" placeholder="Type a message" value={this.state.newMessage} onChange={this.onChangeNewMessage}/>
+            <textarea rows="2" placeholder="Type a message" value={this.state.newMessage} onChange={this.onChangeNewMessage} />
           </div>
           <button className="ui blue labeled submit icon button" onClick={this.createMessage}>
             <i className="icon edit" /> Send Message

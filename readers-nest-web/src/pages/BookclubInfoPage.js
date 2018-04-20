@@ -16,10 +16,10 @@ class BookclubInfoPageContainer extends Component {
   render() {
     return (
       <div className="ui container grid">
-        <div className="four wide column">
+        <div className="five wide column">
           <BookclubInfo bookclub={this.bookclub} />
         </div>
-        <div className="twelve wide column">
+        <div className="eleven wide column">
           <MessageList bookclubId={this.bookclub.id} messages={this.bookclub.messages} />
         </div>
       </div>
