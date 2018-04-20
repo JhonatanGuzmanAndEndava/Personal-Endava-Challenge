@@ -36,6 +36,9 @@ BookclubInfoPageContainer.propTypes = {
       id: PropTypes.string,
       name: PropTypes.string,
     }),
+    admins: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string,
+    })),
     messages: PropTypes.arrayOf(PropTypes.shape({
       author: PropTypes.shape({
         id: PropTypes.string,
@@ -56,6 +59,9 @@ const GET_BOOKCLUB = gql`
       actualBook {
         id
         name
+      }
+      admins {
+        id
       }
       messages {
         author {

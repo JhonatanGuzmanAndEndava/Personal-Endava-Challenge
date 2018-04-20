@@ -22,6 +22,7 @@ class BookclubInfo extends Component {
       memberEmail: '',
     };
 
+    this.actUserId = localStorage.getItem('user-id');
     this.bookclub = this.props.bookclub;
 
     this.onChange = this.onChange.bind(this);
@@ -76,6 +77,9 @@ class BookclubInfo extends Component {
     const actBook = !this.bookclub.actualBook ? (<p>Not decided yet</p>) : (
       <p>{this.bookclub.actualBook.name}</p>
     );
+
+    const showMembersForms = this.props.bookclub.admins.find(admin => admin.id === this.actUserId);
+
     return (
       <div className="ui card">
         <div className="content">
@@ -90,23 +94,26 @@ class BookclubInfo extends Component {
           <h3>Currently Reading: </h3>
           {actBook}
         </div>
-        <div className="extra content">
-          <div className="ui fluid action input">
-            <input type="text" name="adminEmail" placeholder="Admin email..." value={this.state.adminEmail} onChange={this.onChange} />
-            <button className="ui green icon button" onClick={this.addAdmin}>
-              <i className="plus icon" />
-              Add
-            </button>
+        {
+          showMembersForms &&
+          <div className="extra content">
+            <div className="ui fluid action input">
+              <input type="text" name="adminEmail" placeholder="Admin email..." value={this.state.adminEmail} onChange={this.onChange} />
+              <button className="ui green icon button" onClick={this.addAdmin}>
+                <i className="plus icon" />
+                Add
+              </button>
+            </div>
+            <div className="ui divider" />
+            <div className="ui fluid action input">
+              <input type="text" name="memberEmail" placeholder="Member email..." value={this.state.memberEmail} onChange={this.onChange} />
+              <button className="ui green icon button" onClick={this.addMember}>
+                <i className="plus icon" />
+                Add
+              </button>
+            </div>
           </div>
-          <div className="ui divider" />
-          <div className="ui fluid action input">
-            <input type="text" name="memberEmail" placeholder="Member email..." value={this.state.memberEmail} onChange={this.onChange} />
-            <button className="ui green icon button" onClick={this.addMember}>
-              <i className="plus icon" />
-              Add
-            </button>
-          </div>
-        </div>
+        }
       </div>
     );
   }
@@ -121,6 +128,9 @@ BookclubInfo.propTypes = {
       id: PropTypes.string,
       name: PropTypes.string,
     }),
+    admins: PropTypes.arrayOf(PropTypes.shape({
+      id: PropTypes.string,
+    })),
   }).isRequired,
   addMember: PropTypes.func.isRequired,
   addAdmin: PropTypes.func.isRequired,
