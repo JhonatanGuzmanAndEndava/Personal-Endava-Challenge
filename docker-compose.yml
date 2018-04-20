@@ -1,0 +1,33 @@
+version: '3'
+services:
+  dbmysql:
+    image: "mysql:latest"
+    ports:
+     - "3306:3306"
+    environment:
+      MYSQL_DATABASE: "bookclubs"
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+  dbmongo:
+    image: "mongo:latest"
+    ports:
+    - "27017:27017"
+  users:
+    build: readers-nest-backend/users
+    ports:
+    - "9000:9000"
+  books:
+    build: readers-nest-backend/books
+    ports:
+    - "9001:9001"
+  bookclubs:
+    build: readers-nest-backend/bookclubs
+    ports:
+    - "9002:9002"
+  graphql:
+    build: readers-nest-graphql
+    ports:
+    - "4000:4000"
+    depends_on:
+      - users
+      - books
+      - bookclubs
