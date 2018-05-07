@@ -1,28 +1,55 @@
 version: '3'
 services:
+
   dbmysql:
-    image: "mysql:latest"
+    image: "mysql:5.6"
     ports:
      - "3306:3306"
     environment:
       MYSQL_DATABASE: "bookclubs"
       MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+    networks:
+      basics:
+        ipv4_address: 172.21.0.2
+      
   dbmongo:
     image: "mongo:latest"
     ports:
     - "27017:27017"
+    networks:
+      basics:
+        ipv4_address: 172.21.0.3
+  
   users:
     build: readers-nest-backend/users
     ports:
     - "9000:9000"
+    depends_on:
+    - dbmongo
+    networks:
+      basics:
+        ipv4_address: 172.21.0.6
+    
   books:
     build: readers-nest-backend/books
     ports:
     - "9001:9001"
+    depends_on:
+    - dbmongo
+    networks:
+      basics:
+        ipv4_address: 172.21.0.5
+    
   bookclubs:
     build: readers-nest-backend/bookclubs
     ports:
     - "9002:9002"
+    depends_on:
+    - dbmysql
+    networks:
+      basics:
+        ipv4_address: 172.21.0.4
+    
   graphql:
     build: readers-nest-graphql
     ports:
@@ -31,3 +58,26 @@ services:
       - users
       - books
       - bookclubs
+    networks:
+      basics:
+        ipv4_address: 172.21.0.7
+        
+  react:
+    build: readers-nest-web
+    ports:
+    - "3000:3000"
+    depends_on:
+      - graphql
+    networks:
+      basics:
+        ipv4_address: 172.21.0.8
+      
+networks:
+  basics:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.21.0.0/24
+         
+         
+         
