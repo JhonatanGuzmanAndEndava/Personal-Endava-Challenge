@@ -26,6 +26,8 @@ services:
     - "9000:9000"
     depends_on:
     - dbmongo
+    #volumes:
+    #- .:/app
     networks:
       basics:
         ipv4_address: 172.21.0.6
@@ -36,6 +38,8 @@ services:
     - "9001:9001"
     depends_on:
     - dbmongo
+    volumes:
+    - .:/app
     networks:
       basics:
         ipv4_address: 172.21.0.5
