@@ -62,4 +62,4 @@ This in order to create images and containers again, but be carefull. You will l
 ## Notes
 
 * Microservices were made with IntelliJ and Spring Boot Framework 
-* Project work in Docker for windows 17.12 and Docker Toolbox. Docker for windows 18.03 and latest version for Linux doesn't work and we don't know why
+* Project works in Docker for windows 17.12 and Docker Toolbox. Docker for windows 18.03 and latest version for Linux doesn't work and we don't know why
