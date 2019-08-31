@@ -13,7 +13,7 @@
   "dependencies": {
     "@playlyfe/gql": "^2.6.0",
     "graphql-yoga": "^1.8.4",
-    "lodash": "^4.17.5",
+    "lodash": "^4.17.13",
     "request": "^2.85.0",
     "request-promise": "^4.2.2"
   },
